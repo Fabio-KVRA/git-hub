@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primeiros Passos — Claude Code & Cowork</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f2ede6;
+    --code-bg: #111318;
+    --code-fg: #e2f0cb;
+    --accent-cc: #ff5c3a;
+    --accent-cw: #3a7eff;
+    --muted: #666;
+    --rule: #d4cfc8;
+    --tag-bg: #e8e2d9;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 96px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hd-left {
+    padding: 24px 32px;
+    border-right: 2px solid var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hd-logo {
+    width: 38px; height: 38px;
+    background: var(--ink);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .hd-logo svg { width: 20px; height: 20px; }
+
+  .hd-title {
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 400;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .hd-title strong {
+    display: block;
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+
+  .hd-right {
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 5px 11px;
+    border-radius: 2px;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+  }
+
+  .pill-cc { color: var(--accent-cc); border-color: var(--accent-cc); background: transparent; }
+  .pill-cc:hover { background: var(--accent-cc); color: #fff; }
+  .pill-cw { color: var(--accent-cw); border-color: var(--accent-cw); background: transparent; }
+  .pill-cw:hover { background: var(--accent-cw); color: #fff; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 56px 32px 48px;
+    border-bottom: 1px solid var(--rule);
+    max-width: 860px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 54px);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em { font-style: italic; font-weight: 300; }
+  .hero h1 .cc { color: var(--accent-cc); font-style: normal; }
+  .hero h1 .cw { color: var(--accent-cw); font-style: normal; }
+
+  .hero p {
+    font-size: 18px;
+    font-weight: 300;
+    color: #444;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  /* ── COMPARISON BAR ── */
+  .compare-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .compare-cell {
+    padding: 28px 32px;
+    position: relative;
+  }
+
+  .compare-cell:first-child { border-right: 2px solid var(--ink); }
+
+  .compare-cell::before {
+    content: attr(data-label);
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: #fff;
+    background: var(--accent);
+    padding: 4px 10px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .compare-cell[data-label="Claude Code"]::before { background: var(--accent-cc); }
+  .compare-cell[data-label="Cowork"]::before { background: var(--accent-cw); }
+
+  .compare-cell h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: -.01em;
+  }
+
+  .compare-cell p {
+    font-size: 15px;
+    font-weight: 300;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .col { border-right: 1px solid var(--rule); }
+  .col:last-child { border-right: none; }
+
+  /* ── SECTION ── */
+  .section {
+    padding: 36px 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .step-num-cc { background: var(--accent-cc); color: #fff; }
+  .step-num-cw { background: var(--accent-cw); color: #fff; }
+  .step-num-n { background: var(--ink); color: #fff; }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+
+  /* ── TERMINAL BLOCK ── */
+  .terminal {
+    background: var(--code-bg);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 14px 0;
+    box-shadow: 0 3px 12px rgba(0,0,0,.18);
+  }
+
+  .term-bar {
+    background: #1c1f28;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .term-dot:nth-child(1) { background: #ff5f57; }
+  .term-dot:nth-child(2) { background: #febc2e; }
+  .term-dot:nth-child(3) { background: #28c840; }
+
+  .term-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #666;
+    margin-left: auto;
+    letter-spacing: .06em;
+  }
+
+  .term-body {
+    padding: 16px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--code-fg);
+    position: relative;
+  }
+
+  .term-body .prompt { color: var(--accent-cc); user-select: none; }
+  .term-body .cmd { color: #fff; }
+  .term-body .comment { color: #4a6580; }
+  .term-body .output { color: #8ba4a0; font-size: 12px; }
+  .term-body .success { color: #69d5a0; }
+
+  .copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: #2a2d38;
+    border: none;
+    color: #888;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .04em;
+  }
+
+  .copy-btn:hover { background: #3a3d4a; color: #ccc; }
+  .copy-btn.copied { color: #69d5a0; }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; }
+
+  .checklist li {
+    display: flex;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--rule);
+    font-size: 14.5px;
+    align-items: flex-start;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .check-icon {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .check-icon-cc { background: #ffeae5; color: var(--accent-cc); }
+  .check-icon-cw { background: #e5efff; color: var(--accent-cw); }
+  .check-icon-n  { background: #e8e2d9; color: #555; }
+
+  .checklist li strong { font-weight: 600; }
+  .checklist li span { font-weight: 300; color: #555; font-size: 13.5px; }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--tag-bg);
+    color: #555;
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 3px solid;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .callout-cc { border-color: var(--accent-cc); background: #fff6f4; }
+  .callout-cw { border-color: var(--accent-cw); background: #f3f7ff; }
+  .callout-warn { border-color: #e6b800; background: #fffbec; }
+
+  .callout p {
+    font-size: 13.5px;
+    font-weight: 300;
+    color: #444;
+    line-height: 1.55;
+  }
+
+  .callout strong { font-weight: 600; color: var(--ink); }
+
+  /* ── WORKFLOW STEPS ── */
+  .workflow { display: flex; flex-direction: column; gap: 0; }
+
+  .wf-step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--rule);
+    position: relative;
+  }
+
+  .wf-step:last-child { border-bottom: none; }
+
+  .wf-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    padding-top: 2px;
+    text-align: center;
+  }
+
+  .wf-content h4 {
+    font-size: 14.5px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .wf-content p {
+    font-size: 13px;
+    font-weight: 300;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  /* ── PRICING TABLE ── */
+  .pricing-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--rule);
+    gap: 10px;
+  }
+
+  .pricing-row:last-child { border-bottom: none; }
+
+  .plan-name { font-size: 14px; font-weight: 600; }
+  .plan-price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .plan-access {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+  }
+
+  .access-yes { background: #d4f7e7; color: #1a7a4a; }
+  .access-no  { background: #f7d4d4; color: #7a1a1a; }
+  .access-wait { background: #fff3d4; color: #7a5a1a; }
+
+  /* ── TIPS ── */
+  .tip-grid { display: flex; flex-direction: column; gap: 10px; }
+
+  .tip-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+
+  .tip-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .tip-card p {
+    font-size: 13px;
+    font-weight: 300;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .tip-card code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    background: var(--tag-bg);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 2px solid var(--ink);
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  footer p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  .footer-links { display: flex; gap: 16px; }
+
+  .footer-links a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--rule);
+    transition: border-color .2s;
+  }
+
+  .footer-links a:hover { border-color: var(--ink); }
+
+  /* ── TABS ── */
+  .tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 0;
+  }
+
+  .tab {
+    padding: 10px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all .2s;
+  }
+
+  .tab.active-cc { color: var(--accent-cc); border-bottom-color: var(--accent-cc); }
+  .tab.active-cw { color: var(--accent-cw); border-bottom-color: var(--accent-cw); }
+
+  .tab-panel { display: none; padding: 16px 0 0; }
+  .tab-panel.active { display: block; }
+
+  /* ── FULL-WIDTH SECTION ── */
+  .full-section {
+    grid-column: 1 / -1;
+    padding: 36px 32px;
+    border-bottom: 1px solid var(--rule);
+    border-top: 2px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .full-section h2 {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 6px;
+    letter-spacing: -.02em;
+  }
+
+  .full-section p {
+    font-size: 15px;
+    font-weight: 300;
+    color: #aaa;
+    margin-bottom: 24px;
+  }
+
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .prompt-card {
+    background: #1c1f28;
+    border: 1px solid #2a2d38;
+    border-radius: 4px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+
+  .prompt-card:hover { border-color: #4a4d5a; }
+
+  .prompt-card .pc-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .prompt-card.cc .pc-label { color: var(--accent-cc); }
+  .prompt-card.cw .pc-label { color: var(--accent-cw); }
+
+  .prompt-card p {
+    font-size: 13.5px;
+    font-weight: 300;
+    color: #ccc;
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    header, .compare-bar, .layout { grid-template-columns: 1fr; }
+    .hd-left { border-right: none; border-bottom: 2px solid var(--ink); }
+    .compare-cell:first-child { border-right: none; border-bottom: 1px solid var(--rule); }
+    .col { border-right: none; }
+    .full-section { grid-column: 1; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section { animation: fadeUp .4s ease both; }
+  .section:nth-child(1) { animation-delay: .05s; }
+  .section:nth-child(2) { animation-delay: .10s; }
+  .section:nth-child(3) { animation-delay: .15s; }
+  .section:nth-child(4) { animation-delay: .20s; }
+
+  /* cursor blink */
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .cursor { animation: blink 1s step-end infinite; color: var(--accent-cc); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hd-left">
+    <div class="hd-logo">
+      <svg viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="7" stroke="#f2ede6" stroke-width="1.5"/>
+        <path d="M7 10h6M10 7v6" stroke="#f2ede6" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="hd-title">
+      <strong>Claude — Primeiros Passos</strong>
+      Guia de referência rápida · Abril 2026
+    </div>
+  </div>
+  <div class="hd-right">
+    <a class="pill pill-cc" href="#sec-cc">Claude Code</a>
+    <a class="pill pill-cw" href="#sec-cw">Cowork</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">Guia de onboarding</p>
+  <h1>Dois produtos.<br><em>Uma arquitetura</em><br>agentic<span class="cc">.</span></h1>
+  <p>Claude Code é para quem vive no terminal. Cowork é para quem não precisa — e nunca quis. Ambos compartilham o mesmo motor agentic. Esta página cobre instalação, primeiros comandos e quando usar cada um.</p>
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar">
+  <div class="compare-cell" data-label="Claude Code">
+    <h2>Terminal-first, para devs</h2>
+    <p>Acessa seu codebase, executa comandos, reescreve arquivos e faz git — tudo por linguagem natural. Você dirige, Claude executa em loop até concluir.</p>
+  </div>
+  <div class="compare-cell" data-label="Cowork">
+    <h2>Desktop-first, para todos</h2>
+    <p>Aponta para uma pasta, descreve o objetivo. Claude planeja e executa tarefas multi-etapa — análise, organização, relatórios — sem tocar no terminal.</p>
+  </div>
+</div>
+
+<!-- MAIN TWO-COLUMN -->
+<div class="layout">
+
+  <!-- ====== CLAUDE CODE COLUMN ====== -->
+  <div class="col" id="sec-cc">
+
+    <!-- INSTALL -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cc">1</div>
+        <span class="section-title">Instalação</span>
+      </div>
+
+      <div class="tab-bar">
+        <button class="tab active-cc" onclick="switchTab(this,'install-native','cc')">Native (recomendado)</button>
+        <button class="tab" onclick="switchTab(this,'install-npm','cc')">npm (legado)</button>
+        <button class="tab" onclick="switchTab(this,'install-win','cc')">Windows</button>
+      </div>
+
+      <div id="install-native" class="tab-panel active">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+            <span class="term-label">macOS / Linux</span>
+          </div>
+          <div class="term-body">
+            <button class="copy-btn" onclick="copyCode(this, 'curl -fsSL https://claude.ai/install.sh | sh')">copiar</button>
+            <div><span class="comment"># Instalador nativo — não precisa de Node.js</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">curl -fsSL https://claude.ai/install.sh | sh</span></div>
+            <div class="output">✔ Claude Code instalado com sucesso</div>
+            <br>
+            <div><span class="prompt">$ </span><span class="cmd">claude --version</span></div>
+            <div class="success">Claude Code 2.x.x<span class="cursor">_</span></div>
+          </div>
+        </div>
+        <div class="callout callout-cc">
+          <p><strong>Sem Node.js.</strong> O instalador nativo é standalone. Se você usava o método npm, pode migrar — suas configurações em <code style="font-family:monospace;font-size:12px;background:#ffeae5;padding:1px 4px;border-radius:2px;">~/.claude/</code> são preservadas.</p>
+        </div>
+      </div>
+
+      <div id="install-npm" class="tab-panel">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+            <span class="term-label">Node.js 18+</span>
+          </div>
+          <div class="term-body">
+            <div><span class="comment"># Requer Node.js 18+</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">node --version</span></div>
+            <div class="output">v20.11.0</div>
+            <br>
+            <div><span class="prompt">$ </span><span class="cmd">npm install -g @anthropic-ai/claude-code</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="install-win" class="tab-panel">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+            <span class="term-label">PowerShell / CMD</span>
+          </div>
+          <div class="term-body">
+            <div><span class="comment"># Opção 1: WinGet</span></div>
+            <div><span class="prompt">PS> </span><span class="cmd">winget install Anthropic.ClaudeCode</span></div>
+            <br>
+            <div><span class="comment"># Opção 2: WSL2 (projetos Linux)</span></div>
+            <div><span class="prompt">PS> </span><span class="cmd">wsl --install</span></div>
+            <div class="output">↳ depois use o instalador nativo dentro do WSL</div>
+          </div>
+        </div>
+        <div class="callout callout-cc">
+          <p><strong>Dica Windows:</strong> use Git for Windows no modo nativo. Para projetos em WSL2, execute o Claude Code dentro do próprio WSL — evita latência de I/O cross-filesystem.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIRST SESSION -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cc">2</div>
+        <span class="section-title">Primeira sessão</span>
+      </div>
+      <div class="terminal">
+        <div class="term-bar">
+          <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+          <span class="term-label">terminal</span>
+        </div>
+        <div class="term-body">
+          <div><span class="comment"># Navegue até seu projeto</span></div>
+          <div><span class="prompt">$ </span><span class="cmd">cd ~/meu-projeto</span></div>
+          <br>
+          <div><span class="comment"># Inicie o Claude Code</span></div>
+          <div><span class="prompt">$ </span><span class="cmd">claude</span></div>
+          <div class="output">✔ Autenticando via browser...</div>
+          <div class="success">Bem-vindo ao Claude Code. Como posso ajudar?</div>
+          <br>
+          <div><span class="comment"># Comandos úteis de slash</span></div>
+          <div class="output">/status   — modelo e limites atuais</div>
+          <div class="output">/clear    — reseta conversa (mantém CLAUDE.md)</div>
+          <div class="output">/bug      — reportar problema diretamente</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLAUDE.MD -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cc">3</div>
+        <span class="section-title">CLAUDE.md — contexto persistente</span>
+      </div>
+      <p style="font-size:14px;font-weight:300;color:#555;margin-bottom:14px;">Crie um arquivo <code style="font-family:monospace;font-size:12px;background:#f0ebe3;padding:1px 4px;border-radius:2px;">CLAUDE.md</code> na raiz do projeto. É carregado em cada sessão automaticamente. Pense nele como o briefing do estagiário antes de começar.</p>
+      <div class="terminal">
+        <div class="term-bar">
+          <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+          <span class="term-label">CLAUDE.md — exemplo mínimo</span>
+        </div>
+        <div class="term-body" style="color:#e2f0cb;">
+          <div style="color:#8ba4a0;"># Projeto: Landing Page Produto X</div>
+          <br>
+          <div style="color:#8ba4a0;">## Stack</div>
+          <div>- Next.js 14 (App Router), TypeScript, Tailwind</div>
+          <div>- Banco: PostgreSQL via Prisma</div>
+          <br>
+          <div style="color:#8ba4a0;">## Regras</div>
+          <div>- Não modifique prisma/migrations/ diretamente</div>
+          <div>- Sempre rode pnpm lint antes de concluir</div>
+          <div>- Preferência: named exports, sem classes</div>
+          <br>
+          <div style="color:#8ba4a0;">## Contexto de negócio</div>
+          <div>- Produto de B2B SaaS, foco em PMEs</div>
+          <div>- Tom: direto, sem jargão excessivo</div>
+        </div>
+      </div>
+      <div class="callout callout-cc">
+        <p><strong>Dica prática:</strong> mantenha o CLAUDE.md enxuto. Linke para arquivos externos se necessário — ele é carregado em toda sessão e consome tokens de contexto.</p>
+      </div>
+    </div>
+
+    <!-- PLAN MODE -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cc">4</div>
+        <span class="section-title">Plan Mode — para tarefas complexas</span>
+      </div>
+      <div class="workflow">
+        <div class="wf-step">
+          <div class="wf-num">01</div>
+          <div class="wf-content">
+            <h4>Ative antes de implementar</h4>
+            <p>Use <code style="font-family:monospace;font-size:12px;background:#f0ebe3;padding:1px 4px;border-radius:2px;">Shift+Tab</code> para ativar Plan Mode. Claude mostra o plano antes de executar — ideal para tarefas que tocam 3+ arquivos.</p>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">02</div>
+          <div class="wf-content">
+            <h4>Revise o plano antes de aprovar</h4>
+            <p>O Claude lista os arquivos que vai modificar e a sequência de operações. Você confirma ou ajusta antes de qualquer escrita.</p>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">03</div>
+          <div class="wf-content">
+            <h4>Push back é esperado</h4>
+            <p>Se o approach não for o que você quer, diga explicitamente: "Não, use X em vez disso". Claude itera sem rancor — foi treinado para adaptar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING CC -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-n">$</div>
+        <span class="section-title">Planos & acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Free</span>
+        <span class="plan-price">$0/mês</span>
+        <span class="plan-access access-no">Sem acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Pro</span>
+        <span class="plan-price">$20/mês</span>
+        <span class="plan-access access-yes">✓ Acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Max 5×</span>
+        <span class="plan-price">$100/mês</span>
+        <span class="plan-access access-yes">✓ Acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Max 20×</span>
+        <span class="plan-price">$200/mês</span>
+        <span class="plan-access access-yes">✓ Acesso</span>
+      </div>
+      <div class="callout callout-cc" style="margin-top:14px;">
+        <p><strong>Recomendação:</strong> comece com Pro ($20). Se você usar o Claude Code por horas diárias em projetos pesados, avalie Max 5× — as subscrições são subsidiadas vs. API pay-per-use.</p>
+      </div>
+    </div>
+
+  </div>
+  <!-- /CC COLUMN -->
+
+
+  <!-- ====== COWORK COLUMN ====== -->
+  <div class="col" id="sec-cw">
+
+    <!-- O QUE É -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cw">1</div>
+        <span class="section-title">O que é e como acessar</span>
+      </div>
+      <ul class="checklist">
+        <li>
+          <div class="check-icon check-icon-cw">↓</div>
+          <div><strong>Baixe o Claude Desktop App</strong><br><span>Disponível para macOS e Windows. Acesse <strong>claude.ai/download</strong> — é o mesmo app do chat, agora com uma aba Cowork na sidebar.</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-cw">⊞</div>
+          <div><strong>Abra a aba "Cowork"</strong><br><span>Aparece na sidebar ao lado do Chat. Se não aparecer, atualize o app para a versão mais recente.</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-cw">📁</div>
+          <div><strong>Monte uma pasta</strong><br><span>Claude só acessa o que você autorizar. Comece com uma pasta de teste — não aponte para a raiz do sistema logo de cara.</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-cw">✓</div>
+          <div><strong>Descreva o objetivo</strong><br><span>Fale o resultado que quer, não os passos. "Organize esses PDFs por mês e gere um índice em Markdown." Claude planeja e executa.</span></div>
+        </li>
+      </ul>
+      <div class="callout callout-cw">
+        <p><strong>Research Preview:</strong> Cowork ainda está em fase de preview. Disponível para todos os planos pagos (Pro, Max, Team, Enterprise). Free não tem acesso.</p>
+      </div>
+    </div>
+
+    <!-- WORKFLOW -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cw">2</div>
+        <span class="section-title">Como Cowork funciona na prática</span>
+      </div>
+      <div class="workflow">
+        <div class="wf-step">
+          <div class="wf-num">01</div>
+          <div class="wf-content">
+            <h4>Você define o objetivo</h4>
+            <p>Fale em linguagem natural o que precisa. Cowork é orientado a outcome — não a prompt.</p>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">02</div>
+          <div class="wf-content">
+            <h4>Claude planeja as etapas</h4>
+            <p>Antes de agir, exibe o plano. Você pode aprovar, ajustar ou cancelar. Deletar/editar arquivos pede confirmação explícita.</p>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">03</div>
+          <div class="wf-content">
+            <h4>Execução com acompanhamento em tempo real</h4>
+            <p>Você vê as tool calls acontecendo: leitura de arquivo, escrita, chamada de conector. Pode pausar a qualquer momento.</p>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">04</div>
+          <div class="wf-content">
+            <h4>Resultado entregue na pasta</h4>
+            <p>Arquivos transformados ficam onde você autorizou. Cowork não sai da sandbox que você definiu.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASOS DE USO -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cw">3</div>
+        <span class="section-title">Casos de uso — não-técnicos</span>
+      </div>
+      <ul class="checklist">
+        <li>
+          <div class="check-icon check-icon-cw">📊</div>
+          <div><strong>Análise de planilhas</strong><br><span>Exporta para <span class="tag">xlsx</span> <span class="tag">docx</span> <span class="tag">pdf</span> com skills nativas. Ex: analisa despesas do mês e gera relatório Word formatado.</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-cw">📂</div>
+          <div><strong>Organização de arquivos</strong><br><span>Classifica, renomeia, move por padrão. "Agrupe os PDFs de notas fiscais de 2024 por trimestre."</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-cw">🔍</div>
+          <div><strong>Pesquisa e síntese</strong><br><span>Com connector Claude in Chrome, navega e compila informações de múltiplas páginas sem você trocar de janela.</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-cw">📋</div>
+          <div><strong>Relatórios multi-fonte</strong><br><span>Cruza dados de arquivos locais com conectores externos (Notion, Google Drive, n8n) e entrega um documento consolidado.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- CONNECTORS -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-cw">4</div>
+        <span class="section-title">Conectores — expandindo o alcance</span>
+      </div>
+      <p style="font-size:14px;font-weight:300;color:#555;margin-bottom:14px;">Cowork acessa serviços externos via MCP connectors. O catálogo tem centenas de opções — alguns destaques:</p>
+      <ul class="checklist">
+        <li>
+          <div class="check-icon check-icon-cw">🌐</div>
+          <div><strong>Claude in Chrome</strong><br><span>Extensão de browser. Permite que Cowork execute tarefas via web sem você trocar janelas.</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-n">📁</div>
+          <div><strong>Google Drive / Notion</strong><br><span>Ainda em desenvolvimento para Cowork. Por enquanto, use o workaround via Chrome extension para workflows Google.</span></div>
+        </li>
+        <li>
+          <div class="check-icon check-icon-n">⚙️</div>
+          <div><strong>n8n / AWS / Honeycomb</strong><br><span>Para automação de workflows, cloud e observabilidade. Conectores são revisados pela Anthropic antes de publicação.</span></div>
+        </li>
+      </ul>
+      <div class="callout callout-warn">
+        <p><strong>Atenção de segurança:</strong> não use Cowork com dados sensíveis regulados (PII, HIPAA, FSI) na fase de research preview. Há vulnerabilidade conhecida de prompt injection em documentos — a Anthropic recomenda cautela com arquivos de fontes desconhecidas.</p>
+      </div>
+    </div>
+
+    <!-- PRICING CW -->
+    <div class="section">
+      <div class="section-head">
+        <div class="step-num step-num-n">$</div>
+        <span class="section-title">Planos & acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Free</span>
+        <span class="plan-price">$0/mês</span>
+        <span class="plan-access access-no">Sem acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Pro</span>
+        <span class="plan-price">$20/mês</span>
+        <span class="plan-access access-yes">✓ Acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Max 5×</span>
+        <span class="plan-price">$100/mês</span>
+        <span class="plan-access access-yes">✓ Acesso</span>
+      </div>
+      <div class="pricing-row">
+        <span class="plan-name">Team / Enterprise</span>
+        <span class="plan-price">Variável</span>
+        <span class="plan-access access-yes">✓ Acesso</span>
+      </div>
+      <div class="callout callout-cw" style="margin-top:14px;">
+        <p><strong>Atenção:</strong> tarefas agentic consomem mais cota do que chat normal — Cowork coordena múltiplos sub-agentes e tool calls. Para uso intenso, Max supera Pro em custo-benefício.</p>
+      </div>
+    </div>
+
+  </div>
+  <!-- /CW COLUMN -->
+
+
+  <!-- ====== PROMPTS SECTION ====== -->
+  <div class="full-section">
+    <h2>Primeiros prompts para testar</h2>
+    <p>Cole estes diretamente — são pontos de partida calibrados, não exemplos genéricos.</p>
+
+    <div class="prompt-grid">
+      <div class="prompt-card cc" onclick="copyPrompt(this)">
+        <div class="pc-label">Claude Code · Setup</div>
+        <p>"Leia o projeto nessa pasta e me explique a arquitetura em 5 pontos. Depois pergunte o que eu quero melhorar."</p>
+      </div>
+      <div class="prompt-card cc" onclick="copyPrompt(this)">
+        <div class="pc-label">Claude Code · Refactor</div>
+        <p>"Entre em Plan Mode. Identifique as 3 funções mais complexas do projeto e proponha um refactor para cada uma antes de executar."</p>
+      </div>
+      <div class="prompt-card cc" onclick="copyPrompt(this)">
+        <div class="pc-label">Claude Code · Debug</div>
+        <p>"Rode os testes. Para cada falha, explique a causa raiz antes de corrigir. Não mude o comportamento de testes que passam."</p>
+      </div>
+      <div class="prompt-card cc" onclick="copyPrompt(this)">
+        <div class="pc-label">Claude Code · Git</div>
+        <p>"Crie um branch feat/[nome], implemente X, rode o lint, e gere um commit com mensagem no padrão conventional commits."</p>
+      </div>
+      <div class="prompt-card cw" onclick="copyPrompt(this)">
+        <div class="pc-label">Cowork · Organização</div>
+        <p>"Nessa pasta há PDFs misturados de anos diferentes. Crie subpastas por ano/mês e mova os arquivos. Mostre o plano antes de executar."</p>
+      </div>
+      <div class="prompt-card cw" onclick="copyPrompt(this)">
+        <div class="pc-label">Cowork · Análise</div>
+        <p>"Analise essa planilha de despesas e gere um relatório Word com: total por categoria, 3 insights principais e um gráfico de barras."</p>
+      </div>
+      <div class="prompt-card cw" onclick="copyPrompt(this)">
+        <div class="pc-label">Cowork · Pesquisa</div>
+        <p>"Compile os últimos 5 relatórios desta pasta num único PDF com sumário executivo de 1 página no início."</p>
+      </div>
+      <div class="prompt-card cw" onclick="copyPrompt(this)">
+        <div class="pc-label">Cowork · Síntese</div>
+        <p>"Leia todos os arquivos .txt nesta pasta e produza um documento Markdown estruturado com os pontos mais recorrentes entre eles."</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- /LAYOUT -->
+
+<!-- FOOTER -->
+<footer>
+  <p>Gerado em Claude.ai · Abril 2026 · Research preview — informações podem mudar</p>
+  <div class="footer-links">
+    <a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">Docs Claude Code</a>
+    <a href="https://claude.com/blog/cowork-research-preview" target="_blank">Blog Cowork</a>
+    <a href="https://support.claude.com" target="_blank">Suporte</a>
+    <a href="https://anthropic.skilljar.com/claude-code-101" target="_blank">Curso Claude Code 101</a>
+  </div>
+</footer>
+
+<script>
+function switchTab(btn, panelId, type) {
+  const col = btn.closest('.col') || btn.closest('.section');
+  const section = btn.closest('.section');
+
+  // remove active from all tabs in this section
+  section.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active-cc','active-cw');
+  });
+  section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+  btn.classList.add('active-' + type);
+  section.querySelector('#' + panelId).classList.add('active');
+}
+
+function copyCode(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'copiar';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function copyPrompt(card) {
+  const text = card.querySelector('p').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = card.style.borderColor;
+    card.style.borderColor = '#69d5a0';
+    card.style.transition = 'border-color .2s';
+    setTimeout(() => { card.style.borderColor = ''; }, 1500);
+  });
+}
+</script>
+</body>
+</html>
